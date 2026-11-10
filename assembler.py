@@ -4,7 +4,6 @@ Extra feature (K = 2): warn if the same label is defined twice.
 """
 import sys
 
-# ---------- Tables ----------
 COMP = {
     '0': '0101010', '1': '0111111', '-1': '0111010',
     'D': '0001100', 'A': '0110000', '!D': '0001101', '!A': '0110001',
@@ -12,11 +11,11 @@ COMP = {
     'D-1': '0001110', 'A-1': '0110010', 'D+A': '0000010', 'D-A': '0010011',
     'A-D': '0000111', 'D&A': '0000000', 'D|A': '0010101',
 }
-# Same operations using M: a-bit becomes 1
+
 for k, v in list(COMP.items()):
     if 'A' in k:
         COMP[k.replace('A', 'M')] = '1' + v[1:]
-# Commutative spellings
+
 for a, b in [('A+D', 'D+A'), ('M+D', 'D+M'), ('A&D', 'D&A'),
              ('M&D', 'D&M'), ('A|D', 'D|A'), ('M|D', 'D|M')]:
     COMP[a] = COMP[b]
@@ -45,10 +44,10 @@ def clean(line):
 
 def assemble(lines):
     symbols = dict(SYMBOLS)
-    labels_seen = {}          # label -> source line number (for the warning)
-    program = []              # cleaned instructions (no labels)
+    labels_seen = {}
+    program = []
 
-    # ---------- Pass 1: find labels ----------
+    
     for lineno, raw in enumerate(lines, start=1):
         line = clean(raw)
         if not line:
@@ -58,13 +57,13 @@ def assemble(lines):
             if name in labels_seen:
                 print(f"Warning: line {lineno}: label '{name}' already "
                       f"defined on line {labels_seen[name]}")
-                continue      # keep the first definition
+                continue      
             labels_seen[name] = lineno
-            symbols[name] = len(program)   # address of next instruction
+            symbols[name] = len(program)
         else:
             program.append(line)
 
-    # ---------- Pass 2: translate ----------
+
     output = []
     next_var = 16
     for line in program:
@@ -95,7 +94,7 @@ def main():
         sys.exit(1)
     path = sys.argv[1]
     with open(path) as f:
-        lines = f.read().splitlines()   # handles \r\n too
+        lines = f.read().splitlines()
     result = assemble(lines)
     out_path = path[:-4] + '.hack'
     with open(out_path, 'w', newline='\n') as f:
